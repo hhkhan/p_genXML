@@ -2,6 +2,13 @@
 # -*- coding: utf-8 -*-
 import csv
 tab='    '
+isQuoted=True
+def Str(tmp):
+    tmp=str(tmp)
+    if isQuoted:
+        tmp='\"'+tmp+'\"'
+    return tmp
+
 def indentText(text,lineSep):
     afterText=''
     for line in str(text).split(lineSep):
@@ -20,13 +27,13 @@ class Node(object):
         else:
             raise Exception('not a valide node.')
     def genStr(self,sep):
-        self._text='<'+ self._nodeName
+        self._text='<'+ self._nodeName+' '
         if(len(self._listAttr)==0):
             self._text += '>'
             self._text += sep
         else:
             for idx in range(len(self._listAttr)):
-                self._text = self._text+' '+str(self._listAttr[idx])+'='+str(self._listValue[idx])
+                self._text = self._text+str(self._listAttr[idx])+'='+Str(self._listValue[idx])+' '
         if(len(self._children)!=0):
             self._text += '>'
             self._text += sep
