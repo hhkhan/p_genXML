@@ -1,0 +1,131 @@
+#include<iostream>
+#include<ctime>
+#include<vector>
+#include<map>
+using namespace std;
+enum ParaID
+{
+	one = 1,
+	two = 2,
+	three = 3,
+	four = 4,
+	five = 5,
+	six = 6,
+	seven =7
+};
+enum VarType
+{
+	EnumInt = 1,
+	EnumBool = 2,
+	EnumChar = 3,
+	EnumStr = 4
+};
+class GlobalData
+{
+public:
+	int a;
+	bool b;
+	char c;
+	int d;
+	string ttt;
+	bool e;
+	char f;
+	map<ParaID, VarType> m_mapId2VarType;
+	map<ParaID, void *> m_mapId2VarAddr;
+	GlobalData()
+	{
+		m_mapId2VarType.insert(make_pair(one, EnumInt));
+		m_mapId2VarAddr.insert(make_pair(one,(void*)(&a)));
+		m_mapId2VarType.insert(make_pair(two, EnumBool));
+		m_mapId2VarAddr.insert(make_pair(two, (void*)(&b)));
+		m_mapId2VarType.insert(make_pair(three, EnumChar));
+		m_mapId2VarAddr.insert(make_pair(three, (void*)(&c)));
+		m_mapId2VarType.insert(make_pair(four, EnumInt));
+		m_mapId2VarAddr.insert(make_pair(four, (void*)(&d)));
+		m_mapId2VarType.insert(make_pair(five, EnumBool));
+		m_mapId2VarAddr.insert(make_pair(five, (void*)(&e)));
+		m_mapId2VarType.insert(make_pair(six, EnumChar));
+		m_mapId2VarAddr.insert(make_pair(six, (void*)(&f)));
+		m_mapId2VarType.insert(make_pair(seven, EnumStr));
+		m_mapId2VarAddr.insert(make_pair(seven, (void*)(&ttt)));
+
+	}
+	~GlobalData()
+	{
+		m_mapId2VarType.clear();
+		m_mapId2VarAddr.clear();
+	}
+
+};
+
+
+int main()
+{
+	
+	map<int, int> nameValue;
+	nameValue[1] = 111;
+	nameValue[2] = 222;
+	nameValue[3] = 97;
+	nameValue[4] = 444;
+	nameValue[5] = 0;
+	nameValue[6] = 98;
+	nameValue[7] = 123456789;
+	int val;
+	map<int, int>::iterator it = nameValue.begin();
+	GlobalData globaldata;
+	map<ParaID, VarType>::iterator typeIter;
+	map<ParaID, void *>::iterator addrIter;
+	for (; it!=nameValue.end(); ++it)
+	{
+		val = it->second;
+	    typeIter = globaldata.m_mapId2VarType.find((ParaID)it->first);
+		addrIter = globaldata.m_mapId2VarAddr.find((ParaID)it->first);
+		if (typeIter == globaldata.m_mapId2VarType.end())
+		{
+			cout<<"can not find type."<<endl;
+			continue;
+		}
+		if (addrIter==globaldata.m_mapId2VarAddr.end())
+		{
+			cout<<"can not find addr"<<endl;
+			continue;
+		}
+		else if (addrIter->second==NULL)
+		{
+			cout<<"addr is null"<<endl;
+			continue;
+		}
+		int *p;
+		bool* pp;
+		char *ppp;
+		string *pppp;
+		char tmp[20];
+		switch (typeIter->second)
+		{
+		case EnumInt:
+			p = (int *)addrIter->second;
+			*p = it->second;
+			break;
+		case EnumBool:
+			pp = (bool *)addrIter->second;
+			*pp = it->second==0 ? false : true;
+			break;
+		case EnumChar:
+			ppp = (char *)addrIter->second;
+			*ppp = (char)it->second;
+			break;
+		case EnumStr:
+			pppp = (string *)addrIter->second;
+			_itoa_s(it->second,tmp,10);
+			pppp->assign(tmp);
+		default:
+			cout<<"cant find type."<<endl;
+			break;
+		}
+	}
+
+	cout<<globaldata.a<<" "<<globaldata.b<<" "<<globaldata.c<<" "
+		<<globaldata.d<<" "<<globaldata.e<<" "<<globaldata.f<<" "
+		<<globaldata.ttt.c_str()<<endl;
+	return 0;
+}
