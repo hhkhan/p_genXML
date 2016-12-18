@@ -1,0 +1,140 @@
+#include <iostream>
+using namespace std;
+
+typedef unsigned int UInt;
+const int MAXNUM = 8;
+const int INVALIDIDX = -1;
+class cacheBlock
+{
+public:
+	cacheBlock()
+	{
+		numOfEntry = 0;
+		head = 0;
+		tail = 0;
+		for (size_t i = 0; i < MAXNUM; ++i)
+		{
+			pre[i] = INVALIDIDX;
+			next[i] = INVALIDIDX;
+		}
+	}
+
+
+	int findIdxFromTail(UInt uiIdx)
+	{
+		int cur = tail;
+		for (size_t i = 0; i < numOfEntry; ++i)
+		{
+			if (data[cur]==uiIdx)
+			{
+				return cur;
+			}
+			else
+			{
+				cur = pre[cur];
+			}
+		}
+		return INVALIDIDX;
+	}
+	bool isHitted(UInt uiIdx)
+	{
+		int loc = 0;
+		if (numOfEntry<MAXNUM)
+		{
+			if (numOfEntry==0)
+			{
+				data[0] = uiIdx;
+				head = 0;
+				tail = 0;
+				++numOfEntry;
+				return false;
+			}
+			loc = findIdxFromTail(uiIdx);
+			if (loc==tail)
+			{
+				return true;
+			}
+			if (loc==INVALIDIDX)
+			{
+				data[numOfEntry] = uiIdx;
+				pre[numOfEntry] = tail;
+				next[tail] = numOfEntry;
+				tail = numOfEntry;
+				++numOfEntry;
+				return false;
+			}
+			if (loc==head)
+			{
+				head = next[head];
+				next[tail] = loc;
+				pre[loc] = tail;
+				tail = loc;
+				return true;
+			}
+			next[pre[loc]] = next[loc];
+			pre[next[loc]] = pre[loc];
+			next[tail] = loc;
+			pre[loc] = tail;
+			tail = loc;
+			return true;
+		}
+		else
+		{
+			loc = findIdxFromTail(uiIdx);
+			if (loc==tail)
+			{
+				return true;
+			}
+			if (loc==INVALIDIDX)
+			{
+				head = next[head];
+				data[loc] = uiIdx;
+				next[tail] = loc;
+				pre[loc] = tail;
+				tail = loc;
+				return false;
+			}
+			if (loc==head)
+			{
+				head = next[head];
+				next[tail] = loc;
+				pre[loc] = tail;
+				tail = loc;
+				return true;
+			}
+			next[pre[loc]] = next[loc];
+			pre[next[loc]] = pre[loc];
+			next[tail] = loc;
+			pre[loc] = tail;
+			tail = loc;
+			return true;
+		}
+	}
+private:
+	size_t numOfEntry;
+	int head;
+	int tail;
+	int pre[MAXNUM];
+	int next[MAXNUM];
+	UInt data[MAXNUM];
+};
+
+int process(int num, UInt *a)
+{
+	int sum = 0;
+	static cacheBlock stCacheBlock;
+	for (int i = 0; i<num; ++i)
+	{
+		if (stCacheBlock.isHitted(a[i]))
+		{
+			sum++;
+		}
+	}
+	return sum;
+}
+int main()
+{
+	UInt a[11] = {1,2,3,4,5,6,1,2,3,4,5};
+	cout<<process(11, a)<<endl;
+	return 0;
+}
